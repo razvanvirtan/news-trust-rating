@@ -1,0 +1,12 @@
+{
+    "manifest_version": 3,
+    "name": "Localhost Viewer",
+    "description": "A Chrome extension to display the content of a page hosted at localhost:3000.",
+    "version": "1.0",
+    "action": {
+      "default_popup": "popup.html"
+    },
+    "permissions": [],
+    "host_permissions": ["http://localhost:3000/*"]
+}
+  
