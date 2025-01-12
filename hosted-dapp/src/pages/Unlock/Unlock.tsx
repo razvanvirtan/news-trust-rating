@@ -43,12 +43,15 @@ const WebWalletLoginButton = USE_WEB_WALLET_CROSS_WINDOW
 export const Unlock = () => {
   const navigate = useNavigate();
   const { width } = useWindowSize();
-
+  
+  
   const [onInitiateLogin, { isLoading }] = useIframeLogin({
     callbackRoute: RouteNamesEnum.dashboard,
     nativeAuth,
     onLoginRedirect: () => {
-      navigate(RouteNamesEnum.dashboard);
+      const queryParams = new URLSearchParams(window.location.search).toString();
+      console.log("Initial Unlock" + queryParams);
+      navigate(`${RouteNamesEnum.dashboard}?${queryParams}`);
     }
   });
 
@@ -58,14 +61,17 @@ export const Unlock = () => {
     nativeAuth,
     onLoginRedirect: () => {
       // use params from URL
-      const queryParams = new URLSearchParams({ala: "bala"}).toString();
-      navigate(`${RouteNamesEnum.dashboard}?${queryParams}`);
+      const queryParams = new URLSearchParams(window.location.search).get('referrer');
+      console.log("Unlock" + queryParams);
+      navigate(`${RouteNamesEnum.dashboard}?referrer=${queryParams}`);
     },
     disabled: isLoading
   };
+  // console.log(window.location.search);
+  // console.log(new URLSearchParams(window.location.search).toString());
 
   return (
-    <AuthRedirectWrapper requireAuth={false} params={new URLSearchParams({ala: "bala"}).toString()}>
+    <AuthRedirectWrapper requireAuth={false} params={new URLSearchParams(window.location.search).toString()}>
       <div className='flex justify-center items-center'>
         <div
           className='flex flex-col p-6 items-center justify-center gap-4 rounded-xl bg-[#f6f8fa]'

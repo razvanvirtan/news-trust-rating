@@ -1,7 +1,71 @@
-import { useGetPingAmount } from '../PingPongAbi/hooks';
+import { useGetPingAmount, useGetTimeToPong } from '../PingPongAbi/hooks';
+import { Button } from 'components';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
+import { useEffect, useState } from 'react';
+import moment from 'moment';
+import { ContractAddress } from 'components/ContractAddress';
+import { Label } from 'components/Label';
+import { OutputContainer, PingPongOutput } from 'components/OutputContainer';
+import { getCountdownSeconds, setTimeRemaining } from 'helpers';
+import { useGetPendingTransactions, useSendPingPongTransaction } from 'hooks';
+import { SessionEnum } from 'localConstants';
+import { SignedTransactionType, WidgetProps } from 'types';
 
-export const Account = () => {
-  const pingAmount = useGetPingAmount();
+export const Account = (referrer:string, { callbackRoute }: WidgetProps) => {
+
+  const getTimeToPong = useGetTimeToPong();
+  const { hasPendingTransactions } = useGetPendingTransactions();
+  const { sendPingTransaction, sendPongTransaction, transactionStatus } =
+    useSendPingPongTransaction({
+      type: SessionEnum.rawPingPongSessionId,
+      referrer: referrer.referrer
+    });
+  
+  const pingAmount = useGetPingAmount(referrer = referrer.referrer);
+
+  const [stateTransactions, setStateTransactions] = useState<
+    SignedTransactionType[] | null
+  >(null);
+  const [hasPing, setHasPing] = useState<boolean>(true);
+  const [secondsLeft, setSecondsLeft] = useState<number>(0);
+
+  const setSecondsRemaining = async () => {
+    const secondsRemaining = await getTimeToPong();
+    const { canPing, timeRemaining } = setTimeRemaining(secondsRemaining);
+
+    setHasPing(canPing);
+    if (timeRemaining && timeRemaining >= 0) {
+      setSecondsLeft(timeRemaining);
+    }
+  };
+
+  const onSendPingTransaction = async () => {
+    await sendPingTransaction({ amount: pingAmount, callbackRoute });
+  };
+
+  const onSendPongTransaction = async () => {
+    await sendPongTransaction({ callbackRoute });
+  };
+
+  const timeRemaining = moment()
+    .startOf('day')
+    .seconds(secondsLeft ?? 0)
+    .format('mm:ss');
+
+  useEffect(() => {
+    getCountdownSeconds({ secondsLeft, setSecondsLeft });
+  }, [hasPing]);
+
+  useEffect(() => {
+    if (transactionStatus.transactions) {
+      setStateTransactions(transactionStatus.transactions);
+    }
+  }, [transactionStatus]);
+
+  useEffect(() => {
+    setSecondsRemaining();
+  }, [hasPendingTransactions]);
 
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
@@ -74,6 +138,27 @@ export const Account = () => {
           }
         </div>
       )}
+      <div className='flex flex-col gap-2'>
+              <div className='flex justify-start gap-2'>
+                <Button
+                  disabled={hasPendingTransactions}
+                  onClick={onSendPingTransaction}
+                  data-cy='transactionBtn'
+                >
+                  <FontAwesomeIcon icon={faArrowUp} className='mr-1' />
+                  Trusted
+                </Button>
+      
+                <Button
+                  disabled={hasPendingTransactions}
+                  data-cy='transactionBtn'
+                  onClick={onSendPongTransaction}
+                >
+                  <FontAwesomeIcon icon={faArrowDown} className='mr-1' />
+                  Untrusted
+                </Button>
+              </div>
+            </div>
     </div>
   );
 };

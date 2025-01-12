@@ -8,7 +8,7 @@ import { StringValue } from '@multiversx/sdk-core/out';
 
 const resultsParser = new ResultsParser();
 
-export const useGetPingAmount = () => {
+export const useGetPingAmount = (referrer:string) => {
   const { network } = useGetNetworkConfig();
   const [pingAmount, setPingAmount] = useState<string>('-');
 
@@ -18,8 +18,9 @@ export const useGetPingAmount = () => {
     try {
       const query = smartContract.createQuery({
         func: new ContractFunction('getRating'),
-        args: [new StringValue('a.com')]
+        args: [new StringValue(referrer)]
       });
+      console.log("Referrer: ", referrer);
       const queryResponse = await proxy.queryContract(query);
 
       const endpointDefinition = smartContract.getEndpoint('getPingAmount');

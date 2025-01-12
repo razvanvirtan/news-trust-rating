@@ -5,14 +5,18 @@ import { useGetIsLoggedIn } from '../../hooks';
 
 interface AuthRedirectWrapperPropsType extends PropsWithChildren {
   requireAuth?: boolean;
-  params: string;
+  params?: string;
 }
 
 export const AuthRedirectWrapper = ({
   children,
   requireAuth = true,
-  params
-}: AuthRedirectWrapperPropsType) => {
+  params,
+}: {
+  children: React.ReactNode;
+  requireAuth?: boolean;
+  params?: string;
+}) => {
   const isLoggedIn = useGetIsLoggedIn();
   const navigate = useNavigate();
 

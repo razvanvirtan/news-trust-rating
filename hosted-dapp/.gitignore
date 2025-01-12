@@ -15,7 +15,6 @@ wdio/node_modules
 /build
 
 # misc
-/src/config/index.ts
 .DS_Store
 .idea
 .env.local

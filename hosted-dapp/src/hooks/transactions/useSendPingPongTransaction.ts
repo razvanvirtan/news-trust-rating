@@ -24,6 +24,7 @@ import { Address } from 'utils/sdkDappCore';
 
 type PingPongTransactionProps = {
   type: SessionEnum;
+  referrer:string;
 };
 
 const PING_TRANSACTION_INFO = {
@@ -38,8 +39,16 @@ const PONG_TRANSACTION_INFO = {
   successMessage: 'Pong transaction successful'
 };
 
+function stringToHex(str: string): string {
+  return Array.from(str)
+    .map((char) => char.charCodeAt(0).toString(16).padStart(2, '0'))
+    .join('');
+}
+
+
 export const useSendPingPongTransaction = ({
-  type
+  type,
+  referrer
 }: PingPongTransactionProps) => {
   // Needed in order to differentiate widgets between each other
   // By default sdk-dapp takes the last sessionId available which will display on every widget the same transaction
@@ -61,13 +70,15 @@ export const useSendPingPongTransaction = ({
     deleteTransactionToast(pingPongSessionId ?? '');
   };
 
+  const referrer_hex = stringToHex(referrer);
+
   const sendPingTransaction = useCallback(
     async ({ amount, callbackRoute }: PingRawProps) => {
       clearAllTransactions();
 
       const pingTransaction = newTransaction({
         value: "",
-        data: 'vote@612e636f6d@01',
+        data: 'vote@'+referrer_hex+'@01',
         receiver: contractAddress,
         gasLimit: 5000000,
         gasPrice: GAS_PRICE,
@@ -135,7 +146,7 @@ export const useSendPingPongTransaction = ({
 
       const pongTransaction = newTransaction({
         value: '0',
-        data: 'pong',
+        data: 'vote@'+referrer_hex+'@00',
         receiver: contractAddress,
         gasLimit: 60000000,
         gasPrice: GAS_PRICE,
