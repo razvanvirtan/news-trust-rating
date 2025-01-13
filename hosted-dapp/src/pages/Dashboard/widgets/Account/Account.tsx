@@ -1,4 +1,4 @@
-import { useGetPingAmount} from '../PingPongAbi/hooks';
+import { useGetTrustedAmount} from '../TrustedUntrustedAbi/hooks';
 import { Button } from 'components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
@@ -17,7 +17,7 @@ export const Account = (referrer:string, { callbackRoute }: WidgetProps) => {
       referrer: referrer.referrer
     });
   
-  const trustScore = useGetPingAmount(referrer = referrer.referrer);
+  const trustScore = useGetTrustedAmount(referrer = referrer.referrer);
 
   const [stateTransactions, setStateTransactions] = useState<
     SignedTransactionType[] | null
@@ -26,7 +26,7 @@ export const Account = (referrer:string, { callbackRoute }: WidgetProps) => {
   const [secondsLeft, setSecondsLeft] = useState<number>(0);
 
   const onSendVoteTrustTransaction = async () => {
-    await sendVoteTrustTransaction({ amount: trustScore, callbackRoute });
+    await sendVoteTrustTransaction({ callbackRoute });
   };
 
   const onSendVoteUntrustTransaction = async () => {

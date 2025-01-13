@@ -2,12 +2,12 @@ import { contractAddress } from 'config';
 import { AuthRedirectWrapper } from 'wrappers';
 import {
   Account,
-  PingPongAbi,
+  TrustedUntrustedAbi,
   SignMessage,
   NativeAuth,
   BatchTransactions,
-  PingPongRaw,
-  PingPongService,
+  TrustedUntrustedRaw,
+  TrustedUntrustedService,
 } from './widgets';
 import { useScrollToElement } from 'hooks';
 import { Widget } from './components';

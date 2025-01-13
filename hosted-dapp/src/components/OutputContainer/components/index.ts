@@ -1,2 +1,2 @@
-export * from './PingPongOutput';
+export * from './TrustedUntrustedOutput';
 export * from './TransactionsOutput';
