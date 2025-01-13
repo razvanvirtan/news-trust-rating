@@ -3,22 +3,22 @@
 // if it is null/undefined then action of ping can be made
 export const setTimeRemaining = (
   secondsRemaining?: null | number
-): { canPing: boolean; timeRemaining?: number } => {
+): { canVote: boolean; timeRemaining?: number } => {
   switch (secondsRemaining) {
     case undefined:
     case null:
       return {
-        canPing: true
+        canVote: true
       };
     case 0:
       return {
         timeRemaining: 0,
-        canPing: false
+        canVote: false
       };
     default: {
       return {
         timeRemaining: secondsRemaining,
-        canPing: false
+        canVote: false
       };
     }
   }

@@ -7,7 +7,7 @@ import { ContractAddress } from 'components/ContractAddress';
 import { Label } from 'components/Label';
 import { OutputContainer, PingPongOutput } from 'components/OutputContainer';
 import { getCountdownSeconds, setTimeRemaining } from 'helpers';
-import { useGetPendingTransactions, useSendPingPongTransaction } from 'hooks';
+import { useGetPendingTransactions, useSendVoteTransaction } from 'hooks';
 import { SessionEnum } from 'localConstants';
 import { SignedTransactionType, WidgetProps } from 'types';
 import { useGetTimeToPong, useGetPingAmount } from './hooks';
@@ -16,9 +16,9 @@ import { useGetTimeToPong, useGetPingAmount } from './hooks';
 export const PingPongRaw = ({ callbackRoute }: WidgetProps) => {
   const getTimeToPong = useGetTimeToPong();
   const { hasPendingTransactions } = useGetPendingTransactions();
-  const { sendPingTransaction, sendPongTransaction, transactionStatus } =
-    useSendPingPongTransaction({
-      type: SessionEnum.rawPingPongSessionId
+  const { sendVoteTrustTransaction, sendVoteUntrustTransaction, transactionStatus } =
+    useSendVoteTransaction({
+      type: SessionEnum.rawVoteSessionId
     });
   const pingAmount = useGetPingAmount();
 
@@ -30,20 +30,20 @@ export const PingPongRaw = ({ callbackRoute }: WidgetProps) => {
 
   const setSecondsRemaining = async () => {
     const secondsRemaining = await getTimeToPong();
-    const { canPing, timeRemaining } = setTimeRemaining(secondsRemaining);
+    const { canVote, timeRemaining } = setTimeRemaining(secondsRemaining);
 
-    setHasPing(canPing);
+    setHasPing(canVote);
     if (timeRemaining && timeRemaining >= 0) {
       setSecondsLeft(timeRemaining);
     }
   };
 
   const onSendPingTransaction = async () => {
-    await sendPingTransaction({ amount: pingAmount, callbackRoute });
+    await sendVoteTrustTransaction({ amount: pingAmount, callbackRoute });
   };
 
   const onSendPongTransaction = async () => {
-    await sendPongTransaction({ callbackRoute });
+    await sendVoteUntrustTransaction({ callbackRoute });
   };
 
   const timeRemaining = moment()

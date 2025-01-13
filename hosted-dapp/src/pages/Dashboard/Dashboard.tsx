@@ -8,7 +8,6 @@ import {
   BatchTransactions,
   PingPongRaw,
   PingPongService,
-  Transactions
 } from './widgets';
 import { useScrollToElement } from 'hooks';
 import { Widget } from './components';

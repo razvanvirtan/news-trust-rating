@@ -8,19 +8,19 @@ import { ContractAddress } from 'components/ContractAddress';
 import { Label } from 'components/Label';
 import { OutputContainer, PingPongOutput } from 'components/OutputContainer';
 import { getCountdownSeconds, setTimeRemaining } from 'helpers';
-import { useGetPendingTransactions, useSendPingPongTransaction } from 'hooks';
+import { useGetPendingTransactions, useSendVoteTransaction } from 'hooks';
 import { SessionEnum } from 'localConstants';
 import { SignedTransactionType, WidgetProps } from 'types';
-import { useGetTimeToPong, useGetPingAmount } from './hooks';
+import { useGetTimeToVote, useGetPingAmount } from './hooks';
 
 export const PingPongAbi = ({ callbackRoute }: WidgetProps) => {
   const { hasPendingTransactions } = useGetPendingTransactions();
-  const getTimeToPong = useGetTimeToPong();
+  const getTimeToPong = useGetTimeToVote();
   const {
     sendPingTransactionFromAbi,
     sendPongTransactionFromAbi,
     transactionStatus
-  } = useSendPingPongTransaction({
+  } = useSendVoteTransaction({
     type: SessionEnum.abiPingPongSessionId
   });
   const pingAmount = useGetPingAmount();
@@ -33,9 +33,9 @@ export const PingPongAbi = ({ callbackRoute }: WidgetProps) => {
 
   const setSecondsRemaining = async () => {
     const secondsRemaining = await getTimeToPong();
-    const { canPing, timeRemaining } = setTimeRemaining(secondsRemaining);
+    const { canVote, timeRemaining } = setTimeRemaining(secondsRemaining);
 
-    setHasPing(canPing);
+    setHasPing(canVote);
     if (timeRemaining && timeRemaining >= 0) {
       setSecondsLeft(timeRemaining);
     }

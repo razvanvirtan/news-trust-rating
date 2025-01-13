@@ -8,7 +8,7 @@ import { Label } from 'components/Label';
 import { MissingNativeAuthError } from 'components/MissingNativeAuthError';
 import { OutputContainer, PingPongOutput } from 'components/OutputContainer';
 import { getCountdownSeconds, setTimeRemaining } from 'helpers';
-import { useGetPendingTransactions, useSendPingPongTransaction } from 'hooks';
+import { useGetPendingTransactions, useSendVoteTransaction } from 'hooks';
 import { useGetLoginInfo } from 'hooks/sdkDappHooks';
 import { SessionEnum } from 'localConstants';
 import { SignedTransactionType, WidgetProps } from 'types';
@@ -30,7 +30,7 @@ export const PingPongService = ({ callbackRoute }: WidgetProps) => {
     sendPingTransactionFromService,
     sendPongTransactionFromService,
     transactionStatus
-  } = useSendPingPongTransaction({
+  } = useSendVoteTransaction({
     type: SessionEnum.abiPingPongServiceSessionId
   });
   const getTimeToPong = useGetTimeToPong();
@@ -45,9 +45,9 @@ export const PingPongService = ({ callbackRoute }: WidgetProps) => {
     }
 
     const secondsRemaining = await getTimeToPong();
-    const { canPing, timeRemaining } = setTimeRemaining(secondsRemaining);
+    const { canVote, timeRemaining } = setTimeRemaining(secondsRemaining);
 
-    setHasPing(canPing);
+    setHasPing(canVote);
     if (timeRemaining && timeRemaining >= 0) {
       setSecondsLeft(timeRemaining);
     }

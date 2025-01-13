@@ -1,61 +1,41 @@
-import { useGetPingAmount, useGetTimeToPong } from '../PingPongAbi/hooks';
+import { useGetPingAmount} from '../PingPongAbi/hooks';
 import { Button } from 'components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
-import moment from 'moment';
-import { ContractAddress } from 'components/ContractAddress';
-import { Label } from 'components/Label';
-import { OutputContainer, PingPongOutput } from 'components/OutputContainer';
-import { getCountdownSeconds, setTimeRemaining } from 'helpers';
-import { useGetPendingTransactions, useSendPingPongTransaction } from 'hooks';
+
+import { getCountdownSeconds } from 'helpers';
+import { useSendVoteTransaction } from 'hooks';
 import { SessionEnum } from 'localConstants';
 import { SignedTransactionType, WidgetProps } from 'types';
 
 export const Account = (referrer:string, { callbackRoute }: WidgetProps) => {
 
-  const getTimeToPong = useGetTimeToPong();
-  const { hasPendingTransactions } = useGetPendingTransactions();
-  const { sendPingTransaction, sendPongTransaction, transactionStatus } =
-    useSendPingPongTransaction({
-      type: SessionEnum.rawPingPongSessionId,
+  const { sendVoteTrustTransaction, sendVoteUntrustTransaction, transactionStatus } =
+    useSendVoteTransaction({
+      type: SessionEnum.rawVoteSessionId,
       referrer: referrer.referrer
     });
   
-  const pingAmount = useGetPingAmount(referrer = referrer.referrer);
+  const trustScore = useGetPingAmount(referrer = referrer.referrer);
 
   const [stateTransactions, setStateTransactions] = useState<
     SignedTransactionType[] | null
   >(null);
-  const [hasPing, setHasPing] = useState<boolean>(true);
+  const [hasVote, setHasVote] = useState<boolean>(true);
   const [secondsLeft, setSecondsLeft] = useState<number>(0);
 
-  const setSecondsRemaining = async () => {
-    const secondsRemaining = await getTimeToPong();
-    const { canPing, timeRemaining } = setTimeRemaining(secondsRemaining);
-
-    setHasPing(canPing);
-    if (timeRemaining && timeRemaining >= 0) {
-      setSecondsLeft(timeRemaining);
-    }
+  const onSendVoteTrustTransaction = async () => {
+    await sendVoteTrustTransaction({ amount: trustScore, callbackRoute });
   };
 
-  const onSendPingTransaction = async () => {
-    await sendPingTransaction({ amount: pingAmount, callbackRoute });
+  const onSendVoteUntrustTransaction = async () => {
+    await sendVoteUntrustTransaction({ callbackRoute });
   };
-
-  const onSendPongTransaction = async () => {
-    await sendPongTransaction({ callbackRoute });
-  };
-
-  const timeRemaining = moment()
-    .startOf('day')
-    .seconds(secondsLeft ?? 0)
-    .format('mm:ss');
 
   useEffect(() => {
     getCountdownSeconds({ secondsLeft, setSecondsLeft });
-  }, [hasPing]);
+  }, [hasVote]);
 
   useEffect(() => {
     if (transactionStatus.transactions) {
@@ -63,14 +43,10 @@ export const Account = (referrer:string, { callbackRoute }: WidgetProps) => {
     }
   }, [transactionStatus]);
 
-  useEffect(() => {
-    setSecondsRemaining();
-  }, [hasPendingTransactions]);
-
   return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      {pingAmount === '-' ? (
-        // Loading icon while pingAmount is being fetched
+    <div style={{ textAlign: 'center', marginTop: '25%', backgroundColor: 'white',  borderRadius: '15px' }}>
+      {trustScore === '-' ? (
+        // Loading icon while trustScore is being fetched
         <div>
           <span>Loading...</span>
           <div
@@ -81,7 +57,7 @@ export const Account = (referrer:string, { callbackRoute }: WidgetProps) => {
               width: '40px',
               height: '40px',
               margin: '20px auto',
-              animation: 'spin 2s linear infinite'
+              animation: 'spin 2s linear infinite',
             }}
           ></div>
           <style>{`
@@ -92,39 +68,39 @@ export const Account = (referrer:string, { callbackRoute }: WidgetProps) => {
           `}</style>
         </div>
       ) : (
-        // Display pingAmount once it's available
+        // Display trustScore once it's available
         <div>
           {
-            (Number.parseFloat(pingAmount) / 10 >= 0 & Number.parseFloat(pingAmount) / 10 < 25) ? (
+            (Number.parseFloat(trustScore) / 10 >= 0 & Number.parseFloat(trustScore) / 10 < 25) ? (
               <div>
                 <h1>Confidence Score</h1>
-                <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'red' }}>{Number.parseFloat(pingAmount) / 10}%</p>
+                <p style={{ fontSize: '40px', fontWeight: 'bold', color: 'red' }}>{Number.parseFloat(trustScore) / 10}%</p>
               </div>
             ) : (
-              (Number.parseFloat(pingAmount) / 10 >= 25 & Number.parseFloat(pingAmount) / 10 < 50) ? (
+              (Number.parseFloat(trustScore) / 10 >= 25 & Number.parseFloat(trustScore) / 10 < 50) ? (
                 <div>
                   <h1>Confidence Score</h1>
-                  <p style={{ fontSize: '24px', fontWeight: 'bold', color: 'orange' }}>{Number.parseFloat(pingAmount) / 10}%</p>
+                  <p style={{ fontSize: '40px', fontWeight: 'bold', color: 'orange' }}>{Number.parseFloat(trustScore) / 10}%</p>
                 </div>
               ) : (
-                (Number.parseFloat(pingAmount) / 10 >= 50 & Number.parseFloat(pingAmount) / 10 < 75) ? (
+                (Number.parseFloat(trustScore) / 10 >= 50 & Number.parseFloat(trustScore) / 10 < 75) ? (
                     <div>
-                      <h1>Confidence Score</h1>
+                      <h1><b>Confidence Score</b></h1>
                       <p style={{
-                        fontSize: '24px',
+                        fontSize: '40px',
                         fontWeight: 'bold',
-                        color: 'yellow'
-                      }}>{Number.parseFloat(pingAmount) / 10}%</p>
+                        color: '#ffe033'
+                      }}>{Number.parseFloat(trustScore) / 10}%</p>
                     </div>
                   ) : (
-                    (Number.parseFloat(pingAmount) / 10 >= 75 & Number.parseFloat(pingAmount) / 10 <= 100) ? (
+                    (Number.parseFloat(trustScore) / 10 >= 75 & Number.parseFloat(trustScore) / 10 <= 100) ? (
                         <div>
                           <h1>Confidence Score</h1>
                           <p style={{
-                            fontSize: '24px',
+                            fontSize: '40px',
                             fontWeight: 'bold',
                             color: 'green'
-                          }}>{Number.parseFloat(pingAmount) / 10}%</p>
+                          }}>{Number.parseFloat(trustScore) / 10}%</p>
                         </div>
                       ) : (
                         <div>
@@ -138,27 +114,23 @@ export const Account = (referrer:string, { callbackRoute }: WidgetProps) => {
           }
         </div>
       )}
-      <div className='flex flex-col gap-2'>
-              <div className='flex justify-start gap-2'>
-                <Button
-                  disabled={hasPendingTransactions}
-                  onClick={onSendPingTransaction}
-                  data-cy='transactionBtn'
-                >
-                  <FontAwesomeIcon icon={faArrowUp} className='mr-1' />
-                  Trusted
-                </Button>
-      
-                <Button
-                  disabled={hasPendingTransactions}
-                  data-cy='transactionBtn'
-                  onClick={onSendPongTransaction}
-                >
-                  <FontAwesomeIcon icon={faArrowDown} className='mr-1' />
-                  Untrusted
-                </Button>
-              </div>
-            </div>
+        <div style={{ textAlign: 'center', padding: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+          <Button
+            onClick={onSendVoteTrustTransaction}
+            data-cy='transactionBtn'
+          >
+            <FontAwesomeIcon icon={faArrowUp} className='mr-1' />
+            Trusted
+          </Button>
+
+          <Button
+            data-cy='transactionBtn'
+            onClick={onSendVoteUntrustTransaction}
+          >
+            <FontAwesomeIcon icon={faArrowDown} className='mr-1' />
+            Untrusted
+          </Button>
+        </div>
     </div>
   );
 };
